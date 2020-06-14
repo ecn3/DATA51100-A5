@@ -6,6 +6,9 @@
 # Import pandas
 import pandas as pd
 from pandas import DataFrame
+# Formats
+fm1 = "College Enrollment Rate for High Schools = {j:.2f} (sd={i:.2f})"
+fm2 = "Total Student Count for non-High Schools = {j:.2f} (sd={i:.2f})"
 
 # load in 'cps.csv' into DataFrame
 cps_dataframe = pd.read_csv('cps.csv',usecols=(0,3,6,18,30,69))
@@ -85,6 +88,27 @@ cps_dataframe['Highest_Grade_Offered'] = highest_grades.values
 # Add starting hour column to dataframe
 cps_dataframe['Starting_Hour'] = starting_hour.values
 
+# Get mean and sd of college Enrollment Rate for high schools
+# Create new dataframe for only highschools
+highschools_dataframe = cps_dataframe.copy()
+# Delete non highschools
+highschools_dataframe.drop(highschools_dataframe[highschools_dataframe.Is_High_School == False].index, inplace=True)
+# Get mean of CER
+college_enrollment_rate_mean = highschools_dataframe.College_Enrollment_Rate_School.mean()
+# Get sd of CER
+college_enrollment_rate_sd = highschools_dataframe.College_Enrollment_Rate_School.std()
+
+# Get mean and sd of student_count_total for non-high schools
+# Create new dataframe for only highschools
+nonhighschools_dataframe = cps_dataframe.copy()
+# Delete non highschools
+nonhighschools_dataframe.drop(nonhighschools_dataframe[nonhighschools_dataframe.Is_High_School == True].index, inplace=True)
+# Get mean of SCT
+student_count_total_mean = nonhighschools_dataframe.Student_Count_Total.mean()
+# Get sd of SCT
+student_count_total_sd= nonhighschools_dataframe.Student_Count_Total.std()
+
+
 # Output
 
 # Header info
@@ -94,3 +118,10 @@ print("PROGRAMMING ASSIGNMENT #5\n")
 
 # First 10 rows of the dataframe
 print(cps_dataframe[:10])
+
+# Print mean and sd of college Enrollment Rate
+print(fm1.format(j=college_enrollment_rate_mean,i=college_enrollment_rate_sd))
+
+
+# Print mean and sd of student_count_total
+print(fm2.format(j=student_count_total_mean,i=student_count_total_sd))
