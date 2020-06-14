@@ -10,6 +10,7 @@ from pandas import DataFrame
 fm1 = "College Enrollment Rate for High Schools = {j:.2f} (sd={i:.2f})\n"
 fm2 = "Total Student Count for non-High Schools = {j:.2f} (sd={i:.2f})\n"
 fm3 = " {}am: {}"
+fm4 = "Number of schools outside Loop: {}"
 
 # load in 'cps.csv' into DataFrame
 cps_dataframe = pd.read_csv('cps.csv',usecols=(0,3,6,18,30,69))
@@ -118,7 +119,15 @@ student_count_total_sd= nonhighschools_dataframe.Student_Count_Total.std()
 # Get starting hour counts
 hour_counts = starting_hour.value_counts()
 
-# Rename hours to match sample output
+# Get number of schools outside the loop
+schools_outside_loop = cps_dataframe.Zip.copy()
+#List of loop schools
+loop_schools = [60601,60602,60603,60604,60605,60606,60607,60616]
+# delete schools not in loop
+for x in loop_schools:
+    schools_outside_loop.drop(schools_outside_loop[schools_outside_loop == x].index, inplace=True)
+# Get Count
+num_schools_outside_loop = schools_outside_loop.count()
 
 # Output
 
@@ -144,3 +153,8 @@ j = 0
 for x in hour_counts:
     print(fm3.format(hour_counts.index.values[j],x))
     j+=1
+
+# Space for sample output match
+print('')
+# Print num SOL
+print(fm4.format(num_schools_outside_loop))
