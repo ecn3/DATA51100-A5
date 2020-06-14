@@ -6,6 +6,7 @@
 # Import pandas
 import pandas as pd
 from pandas import DataFrame
+
 # Formats
 fm1 = "College Enrollment Rate for High Schools = {j:.2f} (sd={i:.2f})\n"
 fm2 = "Total Student Count for non-High Schools = {j:.2f} (sd={i:.2f})\n"
@@ -19,10 +20,10 @@ cps_dervive_dataframe = pd.read_csv('cps.csv',usecols=(28,49))
 # Replace missing numeric values with the mean for the column
 cps_dataframe.fillna(cps_dataframe.mean(), inplace=True)
 
-# Derive lowest grade
-# Get grades for every school
+# Get grades for every school separate into 2 dataframes to derive from
 lowest_grades = cps_dervive_dataframe.Grades_Offered_All
 highest_grades = lowest_grades.copy()
+
 # Create loop variables
 grade = 0
 j = 0
@@ -32,7 +33,7 @@ for x in lowest_grades:
     for y in x:
         if y > grade:
             grade = y
-    # Replace grade with min grade
+    # Error check to make sure PK stays as PK
     if grade == 'P':
         grade = 'PK'
     lowest_grades[j] = grade
@@ -41,6 +42,7 @@ for x in lowest_grades:
 
 # Reset position
 j = 0
+
 # Find the highest grade taught
 for x in highest_grades:
     for y in x:
@@ -55,7 +57,7 @@ for x in highest_grades:
         y += 10
         # Reassign grade
         grade = y
-    # Check if nothing higher then K or PK         
+    # If we have nothing higher then K we check that here since we had to eliminate it before to avoid errors        
     if y == 'K':
         if highest_grades[j][0] == 'P':
             grade = 'PK'
@@ -70,9 +72,10 @@ starting_hour = cps_dervive_dataframe.School_Hours
 
 # Reset position
 j = 0
+
 # Find the Starting hour
 for x in starting_hour:
-    # We have to put this in a try block for when hours are present
+    # We have to put this in a try block for when hours are present as some rows have no data
     try:
         start_time = x[0]
         if start_time == '0':
@@ -91,28 +94,36 @@ for x in starting_hour:
 
 # Add lowest Grade column to dataframe
 cps_dataframe['Lowest_Grade_Offered'] = lowest_grades.values
+
 # Add Highest Grade column to dataframe
 cps_dataframe['Highest_Grade_Offered'] = highest_grades.values
+
 # Add starting hour column to dataframe
 cps_dataframe['School_Start_Hour'] = starting_hour.values
 
 # Get mean and sd of college Enrollment Rate for high schools
 # Create new dataframe for only highschools
 highschools_dataframe = cps_dataframe.copy()
+
 # Delete non highschools
 highschools_dataframe.drop(highschools_dataframe[highschools_dataframe.Is_High_School == False].index, inplace=True)
+
 # Get mean of CER
 college_enrollment_rate_mean = highschools_dataframe.College_Enrollment_Rate_School.mean()
+
 # Get sd of CER
 college_enrollment_rate_sd = highschools_dataframe.College_Enrollment_Rate_School.std()
 
 # Get mean and sd of student_count_total for non-high schools
-# Create new dataframe for only highschools
+# Create new dataframe for only non-highschools
 nonhighschools_dataframe = cps_dataframe.copy()
-# Delete non highschools
+
+# Delete highschools
 nonhighschools_dataframe.drop(nonhighschools_dataframe[nonhighschools_dataframe.Is_High_School == True].index, inplace=True)
+
 # Get mean of SCT
 student_count_total_mean = nonhighschools_dataframe.Student_Count_Total.mean()
+
 # Get sd of SCT
 student_count_total_sd= nonhighschools_dataframe.Student_Count_Total.std()
 
@@ -121,12 +132,15 @@ hour_counts = starting_hour.value_counts()
 
 # Get number of schools outside the loop
 schools_outside_loop = cps_dataframe.Zip.copy()
-#List of loop schools
+
+# List of loop schools
 loop_schools = [60601,60602,60603,60604,60605,60606,60607,60616]
+
 # delete schools not in loop
 for x in loop_schools:
     schools_outside_loop.drop(schools_outside_loop[schools_outside_loop == x].index, inplace=True)
-# Get Count
+
+# Get Count of schools not in the loop we specified
 num_schools_outside_loop = schools_outside_loop.count()
 
 # Output
@@ -138,6 +152,7 @@ print("PROGRAMMING ASSIGNMENT #5\n")
 
 # First 10 rows of the dataframe
 print(cps_dataframe[:10])
+
 # Space for sample output match
 print('')
 
@@ -156,5 +171,6 @@ for x in hour_counts:
 
 # Space for sample output match
 print('')
+
 # Print num SOL
 print(fm4.format(num_schools_outside_loop))
