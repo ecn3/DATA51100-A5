@@ -9,6 +9,7 @@ from pandas import DataFrame
 # Formats
 fm1 = "College Enrollment Rate for High Schools = {j:.2f} (sd={i:.2f})\n"
 fm2 = "Total Student Count for non-High Schools = {j:.2f} (sd={i:.2f})\n"
+fm3 = " {}am: {}"
 
 # load in 'cps.csv' into DataFrame
 cps_dataframe = pd.read_csv('cps.csv',usecols=(0,3,6,18,30,69))
@@ -139,4 +140,7 @@ print(fm2.format(j=student_count_total_mean,i=student_count_total_sd))
 
 # Print DoSH
 print("Distribution of Starting Hours:")
-print(hour_counts)
+j = 0
+for x in hour_counts:
+    print(fm3.format(hour_counts.index.values[j],x))
+    j+=1
