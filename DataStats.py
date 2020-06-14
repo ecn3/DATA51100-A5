@@ -7,8 +7,8 @@
 import pandas as pd
 from pandas import DataFrame
 # Formats
-fm1 = "College Enrollment Rate for High Schools = {j:.2f} (sd={i:.2f})"
-fm2 = "Total Student Count for non-High Schools = {j:.2f} (sd={i:.2f})"
+fm1 = "College Enrollment Rate for High Schools = {j:.2f} (sd={i:.2f})\n"
+fm2 = "Total Student Count for non-High Schools = {j:.2f} (sd={i:.2f})\n"
 
 # load in 'cps.csv' into DataFrame
 cps_dataframe = pd.read_csv('cps.csv',usecols=(0,3,6,18,30,69))
@@ -72,10 +72,16 @@ j = 0
 for x in starting_hour:
     # We have to put this in a try block for when hours are present
     try:
-        hour_strings = x.split()
-        hour = hour_strings[0]
-        meridiem = hour_strings[1][:2]
-        start_time = hour+meridiem
+        start_time = x[0]
+        if start_time == '0':
+            start_time = x[1]
+        # Error check for when it starts with something other then a time
+        if not start_time.isdigit():
+            found_first_digit = 0
+            for y in x:
+                if y.isdigit() and y != '0' and found_first_digit == 0:
+                    start_time = y
+                    found_first_digit += 1
         starting_hour[j] = start_time
     except:
         pass
@@ -86,7 +92,7 @@ cps_dataframe['Lowest_Grade_Offered'] = lowest_grades.values
 # Add Highest Grade column to dataframe
 cps_dataframe['Highest_Grade_Offered'] = highest_grades.values
 # Add starting hour column to dataframe
-cps_dataframe['Starting_Hour'] = starting_hour.values
+cps_dataframe['School_Start_Hour'] = starting_hour.values
 
 # Get mean and sd of college Enrollment Rate for high schools
 # Create new dataframe for only highschools
@@ -108,6 +114,10 @@ student_count_total_mean = nonhighschools_dataframe.Student_Count_Total.mean()
 # Get sd of SCT
 student_count_total_sd= nonhighschools_dataframe.Student_Count_Total.std()
 
+# Get starting hour counts
+hour_counts = starting_hour.value_counts()
+
+# Rename hours to match sample output
 
 # Output
 
@@ -118,10 +128,15 @@ print("PROGRAMMING ASSIGNMENT #5\n")
 
 # First 10 rows of the dataframe
 print(cps_dataframe[:10])
+# Space for sample output match
+print('')
 
 # Print mean and sd of college Enrollment Rate
 print(fm1.format(j=college_enrollment_rate_mean,i=college_enrollment_rate_sd))
 
-
 # Print mean and sd of student_count_total
 print(fm2.format(j=student_count_total_mean,i=student_count_total_sd))
+
+# Print DoSH
+print("Distribution of Starting Hours:")
+print(hour_counts)
